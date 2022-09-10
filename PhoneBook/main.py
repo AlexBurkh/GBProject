@@ -12,7 +12,8 @@ class Program:
         Do = True
         
         data = self._Control.StartLoad()
-        self._Book._contacts = data
+        #self._Book._contacts = data
+        self._Book.import_contact_list(data)
 
         while Do:
             self._ConPrint.Print_Menu()
@@ -32,9 +33,11 @@ class Program:
         elif id_command == '5':
             self._Control.Search(2)
         elif id_command == '6':
-            self._Book._contacts = self._Control.Load_Data()
+            #self._Book._contacts = self._Control.Load_Data()
+            self._Book.import_contact_list(self._Control.Load_Data())
         elif id_command == '7':
-            self._Control.Save_Data(self._Book._contacts)
+            #self._Control.Save_Data(self._Book._contacts)
+            self._Control.Save_Data(self._Book.get_unsorted())
 
         return True
 
