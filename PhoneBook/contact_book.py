@@ -27,6 +27,8 @@ class contact_book:
         self.__next_id = id + 1
 
     def import_contact_list(self, contact_list):
+        self.__contacts = []
+        self.__next_id = 0
         for contact in contact_list:
             self._import_contact(contact.id, contact.name, contact.patronymic, contact.surname, contact.number)
     
