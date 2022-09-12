@@ -1,3 +1,7 @@
 *.pyc
 test.py
-*_log.txt
+*.txt
+workspace.xml
+/.idea
+/data
+database*

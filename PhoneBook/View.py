@@ -13,7 +13,7 @@ class UserInterface:
         self.con.WriteLine('\n\t\tТелефонная книга')
         self.con.WriteLine('======================================================')
         self.con.WriteLine('\n\tКоманды:\n\t    1 - Добавить\n\t    2 - Вывести на экран список\
-        \n\t    3 - Удалить\n\t    4 - Поиск по id\n\t    5 - Поиск по фамилии\n\t    6 - Загрузитьn\n\t    7 - Сохранить\n\t    0 - Выход')
+        \n\t    3 - Удалить\n\t    4 - Поиск по id\n\t    5 - Поиск по фамилии\n\t    6 - Загрузить\n\t    7 - Сохранить\n\t    0 - Выход')
     
     def Print_Menu_Load_Save(self, index):
         massage = ''
@@ -34,8 +34,7 @@ class UserInterface:
         self.con.WriteLine('\n\t\t Список контактов: \n')
         self.con.WriteLine('===================================================================================')
         
-        for i in range(len(lisrUsers)):
-            User = lisrUsers[i]
+        for User in lisrUsers:
 
             self.con.WriteLine('\tid: {} name: {} patronymic: {} surname: {} number: {}'.format(
                 User.id, User.name, User.patronymic, User.surname, User.number))
