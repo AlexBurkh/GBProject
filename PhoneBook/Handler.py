@@ -13,7 +13,7 @@ def create_contact_by_dictionary(item):
 
 
 class JsonHandler():
-    def importin(self):
+    def load(self):
         book = []
         file_paths = 'data\\database.json'
         if not os.path.exists(file_paths):
@@ -24,7 +24,7 @@ class JsonHandler():
             book.append(create_contact_by_dictionary(item))
         return book
 
-    def export(self, contact_list):
+    def save(self, contact_list):
         data = []
         for item in contact_list:
             data.append(JsonHandler.get_dict(item))
@@ -44,7 +44,7 @@ class JsonHandler():
 
 
 class XMLHandler():
-    def importin(self):
+    def load(self):
         book = []
         file_paths = 'data\\database.xml'
         if not os.path.exists(file_paths):
@@ -55,11 +55,10 @@ class XMLHandler():
             dict_atrs = {}
             for atr in contact_xml:
                 dict_atrs[atr.tag] = atr.text
-            print(dict_atrs)
             book.append(create_contact_by_dictionary(dict_atrs))
         return book
 
-    def export(self, lst):
+    def save(self, lst):
         data = ET.Element('CONTACTLIST')
         for item in lst:
             contact = ET.SubElement(data, 'CONTACT')
@@ -75,22 +74,3 @@ class XMLHandler():
     def create_subel(self, element, name, value):
         subEL = ET.SubElement(element, name)
         subEL.text = str(value)
-
-# handler=JsonHandler()
-# book=handler.importin()
-# handler1 = XMLHandler()
-# handler1.export(book.get_sorted())
-# handler1.importin()
-
-
-# book=[]
-# con1=contact(1,'artem','ram','lap','323125432')
-# con2=contact(2,'ivan','petrovicc','ggg','3231sdfs5432')
-# book.append(con1)
-# book.append(con2)
-# xml=XMLHandler()
-# xml.export(book)
-# JsonHandler.export(book)
-# handler=JsonHandler()
-# imported_book=handler.importin()
-# print(imported_book)

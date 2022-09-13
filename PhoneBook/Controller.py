@@ -1,111 +1,102 @@
 from View import UserInterface
-import contact_book
 from text_logger import text_logger
-
 from Handler import JsonHandler, XMLHandler
+from contact_book import contact_book
 
 class Controller:
+    _Book = None
+    _UI = None
+    _Logger = None
+    _JsonHandler = None
+    _XMLHandler = None
 
-    _Book = contact_book.contact_book()
-    _Con_Print = UserInterface()
-    _Logger = text_logger()
-    _JsonLogg = JsonHandler()
-    _XMLLogg = XMLHandler()
 
-    def __init__(self, book, conPrint):
-        self._Book = book
-        self._Con_Print = conPrint    
+    def __init__(self):
+        self._Book = contact_book()
+        self._UI = UserInterface()
+        self._Logger = text_logger()
+        self._JsonHandler = JsonHandler()
+        self._XMLHandler = XMLHandler()
 
-    def Load_Data(self):
-        self._Con_Print.Print_Menu_Load_Save(1)
-        res = self._Con_Print.Read_Line()
+    def load_saved_data(self):
+        self._Logger.INFO('*Загрузка сохраненных данных*')
+        self.import_contacts('xml')
+        #self.import_contacts('json')
 
-        self.Do_Logger(1, f'Загружено через {res} - способ')
+    def load_menu(self):
+        return self._UI.load_menu_text()
 
-        if res == '1': 
-            data = self._JsonLogg.importin()
-            return data
-        if res == '2':
-            data = self._XMLLogg.importin()
-            print(data)
-            return data
+    def load_print_book(self):
+        contacts = self._Book.get_sorted()
+        return self._UI.load_contacts_text_with_header(contacts)
 
-    def Save_Data(self, Booklist):
-        self._Con_Print.Print_Menu_Load_Save(2)
-        res = self._Con_Print.Read_Line()
-
-        print(type(Booklist))
-        if res == '1': 
-            self._JsonLogg.export(Booklist)
-        if res == '2':
-           self._XMLLogg.export(Booklist)
-
-        self.Do_Logger(1, f'Сохранено через {res} - способ')
-        #вместо data будет реализация  
-
-    def StartLoad(self):
-        self.Do_Logger(1, 'Файл загружен при запуске приложения')
-        return self._XMLLogg.importin()
-
-    def Search(self, id_Command):
-        result = None
-        try:
-            if id_Command == 1:
-                id = int(self._Con_Print.Read_Line('Введите id: '))
-                result = self._Book.get_by_id(id)
-                
-                self.Search_correctly(result)
-
-                self._Con_Print.Print_List_Book(result)
-            else:
-                surname = self._Con_Print.Read_Line('Введите фамилию: ')
-                result = self._Book.get_by_surname(surname)
-
-                self.Search_correctly(result)
-
-                self._Con_Print.Print_List_Book(result)        
-        except:
-            self._Con_Print.Print_In_Display('error')
-            self.Do_Logger(3, "Ошибка поиска! Тип поиска: {}".format(id_Command))
-            return
-            
-
-    def Search_correctly(self, result):
-        if result == [] or result == None:
-            self._Con_Print.Print_In_Display('Не найден контакт!')
-            self.Do_Logger(1, 'Не найден контакт')
-
-    def Add_User(self):
-        name =   self._Con_Print.Read_Line('Введите имя: ')
-        patronymic = self._Con_Print.Read_Line('Введите отчество: ')
-        surname = self._Con_Print.Read_Line('Введите фамилию: ')
-        number = self._Con_Print.Read_Line('Введите номер: ')
-
+    def add_contact(self, name, patronymic, surname, number):
         self._Book.add_contact(name, patronymic, surname, number)
+        answer = f'Добавлен контакт: {name} {patronymic} {surname} {number}'
+        self._Logger.INFO(answer)
+        return answer
 
-        contact = '{} - {} - {} - {}'.format(name, patronymic, surname, number)
-        self.Do_Logger(1, 'Добавлен контакт: {}'.format(contact))
-
-    def Print_Book(self):
-        res = self._Book.get_sorted()
-        #res = self._Book.get_unsorted()
-        self._Con_Print.Print_List_Book(res)
-
-    def Delete(self):
-        id = self._Con_Print.Read_Line('Введите id для удоления: ')
-
+    def delete_contact(self, id):
         result = self._Book.delete_contact(int(id))
-
         if result:
-            self.Do_Logger(1, 'Удален контакт id: {}'.format(id))
+            self._Logger.INFO(f'Контакт с id: {id} удален')
+            return f'Готово! Контакт с id: {id} удален'
         else:
-            self._Con_Print.Print_In_Display('error')
-            self.Do_Logger(3, 'Ошибка при удалении контакта по id: {}'.format(id))
+            self._Logger.WARNING(f'Ошибка при удалении контакта по id: {id}')
+            return f'Ошибка при удалении контакта по id: {id}'
 
-    def Do_Logger(self, index, message):
-        if index == 1:
-            self._Logger.INFO(message)
-        elif index == 2:
-            self._Logger.WARNING(message)
+    def search_by_id(self, id):
+        id = int(id)
+        result = self._Book.get_by_id(id)
+        if (self.check_search_result(result)):
+            return self._UI.load_contact_text(result[0])
         else:
-            self._Logger.ERROR(message)
+            self._Logger.WARNING(f'Контакт с id: {id} не найден')
+            return f'Контакт с id: {id} не найден'
+
+    def search_by_surname(self, surname):
+        result = self._Book.get_by_surname(surname)
+        if (self.check_search_result(result)):
+            return self._UI.load_contacts_text(result)
+        else:
+            self._Logger.WARNING(f'Контакт с фамилией: {surname} не найден')
+            return f'Контакт с фамилией: {surname} не найден'
+    
+    def check_search_result(self, result):
+        if result == [] or result == None:
+            return False
+        return True
+
+    def import_contacts(self, type):
+        if type == 'json':
+            self._Book.import_contact_list(self.import_contacts_from_json())
+            self._Logger.INFO("Данные из json хранилища импортированы")
+        elif type == 'xml':
+            self._Book.import_contact_list(self.import_contacts_from_xml())
+            self._Logger.INFO("Данные из XML хранилища импортированы")
+        else:
+            self._Logger.ERROR("Некорректный тип источника данных для импорта")
+        return f"Контакты из {type} хранилища успешно импортированы"
+
+    def import_contacts_from_json(self):
+        return self._JsonHandler.load()
+
+    def import_contacts_from_xml(self):
+        return self._XMLHandler.load()
+
+    def export_contacts(self, type):
+        if type == 'json':
+            self.export_contacts_to_json(self._Book.get_unsorted())
+            self._Logger.INFO("Данные в json хранилище экспортированы")
+        elif type == 'xml':
+            self.export_contacts_to_xml(self._Book.get_unsorted())
+            self._Logger.INFO("Данные в XML хранилище экспортированы")
+        else:
+            self._Logger.ERROR("Некорректный тип хранилища данных для экспорта")
+        return f"Контакты в хранилище успешно экспортированы"
+
+    def export_contacts_to_json(self, contacts):
+        return self._JsonHandler.save(contacts)
+
+    def export_contacts_to_xml(self, contacts):
+        return self._XMLHandler.save(contacts)
