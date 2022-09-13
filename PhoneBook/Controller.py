@@ -91,7 +91,7 @@ class Controller:
         #res = self._Book.get_unsorted()
         self._Con_Print.Print_List_Book(res)
 
-    def Delite(self):
+    def Delete(self):
         id = self._Con_Print.Read_Line('Введите id для удоления: ')
 
         result = self._Book.delete_contact(int(id))
