@@ -19,17 +19,17 @@ class contact_book:
             self.__contacts.append(contact(self.__next_id, name, patronymic, surname, number))
             self.__next_id += 1
             
-    def _import_contact(self, id : str, 
+    def _import_contact(self, n_id : str, 
                              name : str, 
                              patronymic : str, 
                              surname : str, 
                              number : str):
-        if self.check_contact_data(name, patronymic, surname, number, id = id):
-            self.__contacts.append(contact(id, name, patronymic, surname, number))
-            self.__next_id = id + 1
+        if self.check_contact_data(name, patronymic, surname, number, id = n_id):
+            self.__contacts.append(contact(n_id, name, patronymic, surname, number))
+            self.__next_id = n_id + 1
 
     def import_contact_list(self, contact_list):
-        if self.check_text(contact_list):
+        if len(contact_list) > 0:
             self.__contacts = []
             self.__next_id = 0
             for contact in contact_list:
@@ -84,11 +84,11 @@ class contact_book:
         return self.__contacts
 
     def check_text(self, input):
-        if input != None and input != "" and input != []:
+        if (input != None) and (input != ""):
             return True
         return False
 
     def check_contact_data(self, name, patronymic, surname, number, id = 0):
-        if self.check_input(name) and self.check_input(patronymic) and self.check_input(surname) and self.check_input(number) and id >= 0:
+        if self.check_text(name) and self.check_text(patronymic) and self.check_text(surname) and self.check_text(number) and id >= 0:
             return True
         return False
